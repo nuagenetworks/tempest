@@ -16,8 +16,6 @@ import mock
 import random
 import six
 
-from tempest.services.baremetal.v1.json import baremetal_client
-from tempest.services.data_processing.v1_1 import data_processing_client
 from tempest.services.database.json import flavors_client as db_flavor_client
 from tempest.services.database.json import versions_client as db_version_client
 from tempest.services.identity.v2.json import identity_client as \
@@ -32,10 +30,6 @@ from tempest.services.identity.v3.json import services_client
 from tempest.services.image.v1.json import images_client
 from tempest.services.image.v2.json import images_client as images_v2_client
 from tempest.services.network.json import network_client
-from tempest.services.object_storage import account_client
-from tempest.services.object_storage import container_client
-from tempest.services.object_storage import object_client
-from tempest.services.orchestration.json import orchestration_client
 from tempest.services.telemetry.json import alarming_client
 from tempest.services.telemetry.json import telemetry_client
 from tempest.services.volume.v1.json.admin import hosts_client \
@@ -81,15 +75,9 @@ class TestServiceClient(base.TestCase):
     @mock.patch('tempest.lib.common.rest_client.RestClient.__init__')
     def test_service_client_creations_with_specified_args(self, mock_init):
         test_clients = [
-            baremetal_client.BaremetalClient,
-            data_processing_client.DataProcessingClient,
             db_flavor_client.DatabaseFlavorsClient,
             db_version_client.DatabaseVersionsClient,
             network_client.NetworkClient,
-            account_client.AccountClient,
-            container_client.ContainerClient,
-            object_client.ObjectClient,
-            orchestration_client.OrchestrationClient,
             telemetry_client.TelemetryClient,
             alarming_client.AlarmingClient,
             qos_client.QosSpecsClient,
@@ -115,7 +103,7 @@ class TestServiceClient(base.TestCase):
             identity_v2_identity_client.IdentityClient,
             credentials_client.CredentialsClient,
             endpoints_client.EndPointClient,
-            identity_v3_identity_client.IdentityV3Client,
+            identity_v3_identity_client.IdentityClient,
             policies_client.PoliciesClient,
             regions_client.RegionsClient,
             services_client.ServicesClient,

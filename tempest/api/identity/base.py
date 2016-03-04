@@ -37,8 +37,12 @@ class BaseIdentityTest(tempest.test.BaseTestCase):
         cls.tenants_client.update_tenant(tenant['id'], enabled=False)
 
     @classmethod
-    def get_user_by_name(cls, name):
-        users = cls.users_client.list_users()['users']
+    def get_user_by_name(cls, name, domain_id=None):
+        if domain_id:
+            params = {'domain_id': domain_id}
+            users = cls.users_client.list_users(params)['users']
+        else:
+            users = cls.users_client.list_users()['users']
         user = [u for u in users if u['name'] == name]
         if len(user) > 0:
             return user[0]
@@ -108,8 +112,8 @@ class BaseIdentityV2AdminTest(BaseIdentityV2Test):
     @classmethod
     def resource_setup(cls):
         super(BaseIdentityV2AdminTest, cls).resource_setup()
-        cls.data = DataGeneratorV2(cls.client, cls.tenants_client,
-                                   cls.users_client, cls.roles_client)
+        cls.data = DataGeneratorV2(cls.tenants_client, cls.users_client,
+                                   cls.roles_client)
 
     @classmethod
     def resource_cleanup(cls):
@@ -149,6 +153,7 @@ class BaseIdentityV3AdminTest(BaseIdentityV3Test):
         cls.domains_client = cls.os_adm.domains_client
         cls.users_client = cls.os_adm.users_v3_client
         cls.trusts_client = cls.os_adm.trusts_client
+        cls.roles_client = cls.os_adm.roles_v3_client
         cls.token = cls.os_adm.token_v3_client
         cls.endpoints_client = cls.os_adm.endpoints_client
         cls.regions_client = cls.os_adm.regions_client
@@ -161,8 +166,8 @@ class BaseIdentityV3AdminTest(BaseIdentityV3Test):
     @classmethod
     def resource_setup(cls):
         super(BaseIdentityV3AdminTest, cls).resource_setup()
-        cls.data = DataGeneratorV3(cls.client, cls.projects_client,
-                                   cls.users_client, None, cls.domains_client)
+        cls.data = DataGeneratorV3(cls.projects_client, cls.users_client,
+                                   cls.roles_client, cls.domains_client)
 
     @classmethod
     def resource_cleanup(cls):
@@ -170,15 +175,8 @@ class BaseIdentityV3AdminTest(BaseIdentityV3Test):
         super(BaseIdentityV3AdminTest, cls).resource_cleanup()
 
     @classmethod
-    def get_role_by_name(cls, name):
-        roles = cls.client.list_roles()['roles']
-        role = [r for r in roles if r['name'] == name]
-        if len(role) > 0:
-            return role[0]
-
-    @classmethod
-    def disable_user(cls, user_name):
-        user = cls.get_user_by_name(user_name)
+    def disable_user(cls, user_name, domain_id=None):
+        user = cls.get_user_by_name(user_name, domain_id)
         cls.users_client.update_user(user['id'], user_name, enabled=False)
 
     def delete_domain(self, domain_id):
@@ -190,12 +188,11 @@ class BaseIdentityV3AdminTest(BaseIdentityV3Test):
 
 class BaseDataGenerator(object):
 
-    def __init__(self, client, projects_client,
-                 users_client, roles_client=None, domains_client=None):
-        self.client = client
+    def __init__(self, projects_client, users_client, roles_client,
+                 domains_client=None):
         self.projects_client = projects_client
         self.users_client = users_client
-        self.roles_client = roles_client or client
+        self.roles_client = roles_client
         self.domains_client = domains_client
 
         self.user_password = None
