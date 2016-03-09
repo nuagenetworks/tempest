@@ -75,7 +75,7 @@ class PortsTestJSON(sec_base.BaseSecGroupTest):
         network2 = self.create_network(network_name=name)
         network_list = [network1['id'], network2['id']]
         port_list = [{'network_id': net_id} for net_id in network_list]
-        body = self.client.create_bulk_port(ports=port_list)
+        body = self.ports_client.create_bulk_ports(ports=port_list)
         created_ports = body['ports']
         port1 = created_ports[0]
         port2 = created_ports[1]
@@ -197,13 +197,13 @@ class PortsTestJSON(sec_base.BaseSecGroupTest):
         subnet = self.create_subnet(network)
         self.addCleanup(self.subnets_client.delete_subnet, subnet['id'])
         router = self.create_router(data_utils.rand_name('router-'))
-        self.addCleanup(self.client.delete_router, router['id'])
+        self.addCleanup(self.routers_client.delete_router, router['id'])
         port = self.ports_client.create_port(network_id=network['id'])
         # Add router interface to port created above
-        self.client.add_router_interface(router['id'],
-                                         port_id=port['port']['id'])
-        self.addCleanup(self.client.remove_router_interface, router['id'],
-                        port_id=port['port']['id'])
+        self.routers_client.add_router_interface(router['id'],
+                                                 port_id=port['port']['id'])
+        self.addCleanup(self.routers_client.remove_router_interface,
+                        router['id'], port_id=port['port']['id'])
         # List ports filtered by router_id
         port_list = self.ports_client.list_ports(device_id=router['id'])
         ports = port_list['ports']
